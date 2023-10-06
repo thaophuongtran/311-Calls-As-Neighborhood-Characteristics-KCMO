@@ -45,8 +45,12 @@ library(janitor)
 library(knitr)
 library(rgdal)
 library(sf)
+library(scales)
+library(fmsb)
+library(scales)
+library(useful)
 #set colors 
-colors_hex = c("dodgerblue4","green3","red4","orange2","purple4","grey") 
+colors_hex = c("dodgerblue4","green3","red3","orange2","purple4","yellow", "sienna4","hotpink","paleturquoise3") 
 
 #load data
 load("data/kcmo2019_2020_sec.rdata")
@@ -59,7 +63,25 @@ dat$date = as.Date(as.character(dat$yrmo*100+1),"%Y%m%d")
 dat = dat %>% filter(yrmo %in% 201903:202002 & CATEGORY != "Data Not Available")
 
 #load socio-demo data
-sec = read.xlsx("data/SocioEconomic.xlsx")
+sec = read.xlsx("data/SocioEconomic.xlsx") %>%
+  mutate(
+    Est.Population = Number.of.Households*3, #Average household size in KCMO is 3
+    Share.Bachelors.degree.or.higher = 100*`Total.population.age.25+.years.with.a.bachelor's.degree.or.higher`/Est.Population,
+    Share.White.alone = 100*White.alone/Est.Population,
+    Share.Black.or.African.American.alone= 100*Black.or.African.American.alone/Est.Population,                                  
+    Share.Asian.alone = 100*Asian.alone/Est.Population,                                                       
+    Share.Hispanic.or.Latino = 100*Hispanic.or.Latino/Est.Population,                                               
+    Share.Vacant = 100*Total.Vacant/Number.of.Households,
+    Share.Renter.Occupied = 100*Total.Renter.Occupied/Number.of.Households                                             
+  ) %>% select(
+    NBH_ID,
+    Median.income,
+    Median.home.value,
+    Share.Bachelors.degree.or.higher,
+    Share.White.alone:
+    Share.Renter.Occupied,
+    Number.of.Households
+  )
 
 #load shp file
 shp <- readOGR(dsn = "data/Kansas City Neighborhood Boundaries/geo_export_81808d3e-44c5-48c1-9a8e-76fec558c110.shp", stringsAsFactors = F)
@@ -110,7 +132,7 @@ dat %>%group_by(CATEGORY, NEIGH) %>%
 ```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
 
 # summarise demographic and socioeconomic data
-data.frame(t(sec %>% select(-c(NBH_ID,NBH_NAME, Income.Level)))) %>% 
+data.frame(t(sec %>% select(-c(NBH_ID)))) %>% 
   add_rownames("Socioeconomic_Demographic") %>% 
   melt() %>% 
   group_by(Socioeconomic_Demographic) %>% 
@@ -122,16 +144,104 @@ data.frame(t(sec %>% select(-c(NBH_ID,NBH_NAME, Income.Level)))) %>%
     SD = sd(value),
     Max = max(value),
   ) %>% 
-  kable(digits = 0,format.args = list(big.mark = ","))
+  kable(digits = 2,format.args = list(big.mark = ","))
 ```
 
 ### Classification based on 311 service categories
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
+# prepare data for clustering
+vol311_nbh = dat %>% group_by(NBH_ID, NEIGH,CATEGORY) %>%
+  summarise(n=n()) %>%
+  dcast(NBH_ID+NEIGH~CATEGORY)%>% 
+  replace(is.na(.), 0)
+
+#choose number of clusters
+kBest = FitKMeans(scale(vol311_nbh[,-c(1:2)]), max.clusters=20, nstart=25, seed=20231005)
+kBest %>% kable()
+PlotHartigan(kBest) + theme_bw()
+
+#k means cluster
+set.seed(20231005)
+K3N25 = kmeans(scale(vol311_nbh[,-c(1:2)]), centers=5, nstart=25) # see the
+```
 
 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE,fig.height=8,fig.width=8, dpi=300}
+#add cluster to nbh ID 
+K3N25_label = data.frame(nbhid = vol311_nbh$NBH_ID, Neighborhood = vol311_nbh$NEIGH,Cluster = K3N25$cluster)
+
+#list NBH names by cluster
+K3N25_label %>% 
+  select(Neighborhood, Cluster) %>% 
+  group_by(Cluster) %>% 
+  mutate(Neighborhood_Count = n())%>% 
+  arrange(Cluster) %>% 
+  kable()
+
+#visualize cluster on the map
+shp_sf %>% 
+  left_join(K3N25_label, by = "nbhid") %>%
+  ggplot() +
+  geom_sf(aes(fill = as.factor(Cluster)), color = "black")+
+  labs(fill = "Cluster")+
+  scale_fill_manual(values = colors_hex)+
+  theme_void()
 
 ```
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE,fig.height=8,fig.width=8, dpi=300}
+# plot share of top categories for each cluster
+dat %>% 
+  left_join(K3N25_label, by = c("NBH_ID" = "nbhid")) %>% 
+  group_by(Cluster, CATEGORY) %>%
+  summarise(n= n()) %>% 
+  group_by(Cluster) %>%
+  mutate(
+    total = sum(n),
+    share = n/total
+  ) %>% 
+  slice_max(order_by = share, n = 5) %>%
+  ggplot(aes(y = CATEGORY,  x = share, fill = CATEGORY)) +
+  geom_col(stat = "identity", position = position_dodge(),show.legend = FALSE)+
+  facet_wrap(~Cluster, nrow =5, scales = "free_y")+
+  labs(y = "", x = "")+
+  scale_x_continuous(labels = percent)+
+  scale_fill_manual(values = colors_hex)+
+  theme_minimal()
+
+  
+  
+```
+
+
+### Socioeconomic features among clusters
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE,fig.height=8,fig.width=8, dpi=300}
+
+#radar chart to show socioeconomic by cluster
+
+K3N25_label %>% 
+  left_join(sec,by = c("nbhid"="NBH_ID")) %>% 
+  select(-c(nbhid,Neighborhood))%>%
+  group_by(Cluster) %>% 
+  summarise_each(mean) %>%
+  melt(id.vars = "Cluster") %>%
+  group_by(variable) %>% 
+  mutate(rank = rank(value)) %>%
+  ggplot(aes(x = Cluster, y = reorder(variable,rank), fill = rank)) +
+  geom_tile()+
+  scale_fill_distiller(palette = "Blues") +
+  scale_y_discrete(labels = function(x) str_wrap(x, width = 5)) +
+  labs(y = "",fill ="Rank Ascending")+
+  theme_bw()
+
+```
+
+
 
 
