@@ -1,0 +1,100 @@
+---
+title: "Characterizing Neighborhood Using 311 Calls: \n A Case Study of Kansas City"
+output: github_document
+---
+
+**Abstract**
+
+TBD 
+
+**Figures**
+
+```{r setup, include=FALSE}
+#load library
+library(tidyverse)
+options(dplyr.summarise.inform =FALSE)
+library(reshape2)
+library(openxlsx)
+library(car)
+library(ggplot2)
+library(hrbrthemes)
+library(viridis)
+#load library for word association graph
+library(magrittr)
+library(purrr)
+library(tibble)
+library(dplyr)
+library(tidyr)
+library(tidytext)
+library(igraph)
+library(ggraph)
+library(corpus)
+library(janitor)
+library(knitr)
+#set colors 
+colors_hex = c("dodgerblue4","green3","red4","orange2","purple4","grey") 
+
+#load data
+load("data/kcmo2019_2020_sec.rdata")
+
+#create year+month var
+dat$yrmo = dat$CREATEYR*100 +dat$CREATEMO
+dat$date = as.Date(as.character(dat$yrmo*100+1),"%Y%m%d")
+
+#subset 311 data from March 2019 to February 2020 to avoid pandemic and remove NA category
+dat = dat %>% filter(yrmo %in% 201903:202002 & CATEGORY != "Data Not Available")
+
+#load socio-demo data
+sec = read.xlsx("data/SocioEconomic.xlsx")
+```
+
+### Data
+
+#### About 311 data
+ 
+```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
+
+#summarise 311 volume on NBH level
+dat %>%group_by(CATEGORY, NEIGH) %>% 
+  summarise(n = n()) %>% 
+  ungroup() %>%
+  group_by(CATEGORY) %>% 
+  summarise(
+    Neighborhood_Count = n(),
+    Min = min(n),
+    Mean = mean(n),
+    Median = median(n),
+    SD = sd(n),
+    Max = max(n),
+    Total = sum(n)
+  ) %>% kable(digits = 0,format.args = list(big.mark = ","))
+
+```
+
+
+#### About demographic and socioeconomic data
+ 
+```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
+
+# summarise demographic and socioeconomic data
+data.frame(t(sec %>% select(-c(NBH_ID,NBH_NAME, Income.Level)))) %>% 
+  add_rownames("Socioeconomic_Demographic") %>% 
+  melt() %>% 
+  group_by(Socioeconomic_Demographic) %>% 
+  summarise(
+    Neighborhood_Count = n(),
+    Min = min(value),
+    Mean = mean(value),
+    Median = median(value),
+    SD = sd(value),
+    Max = max(value),
+  ) %>% 
+  kable(digits = 0,format.args = list(big.mark = ","))
+```
+
+### Classification based on 311 service categories
+
+
+
+
+
