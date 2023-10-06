@@ -2,12 +2,25 @@
 title: "Characterizing Neighborhood Using 311 Calls: \n A Case Study of Kansas City"
 output: github_document
 ---
+<center>
 
-**Abstract**
+Thao Tran
 
-TBD 
+October 2023 
 
-**Figures**
+</center>
+
+<!-- **Abstracts** -->
+
+<!-- TBD  -->
+
+
+### Intro
+
+From Evicted - Mathew Desmond, we learned that in Milwaukee at the time multiple nuisance activities 911 calls on a property can lead to police service charges to property owners. This might lead to landlord eviction renters. Nuisance activities are especially concentrated in low income, deep poverty neighborhoods. These calls are reported under “Trouble with Subjects”, noise complaints, and domestic violence.
+
+Connecting this to the above literature of using 311 calls as indicators of neighborhood distress and characteristics of urban neighborhoods. In another way, 311 calls can be used as a real time indicator of neighborhood characteristics in addition to much lagged socio-demographic estimates. 
+
 
 ```{r setup, include=FALSE}
 #load library
@@ -23,7 +36,6 @@ library(viridis)
 library(magrittr)
 library(purrr)
 library(tibble)
-library(dplyr)
 library(tidyr)
 library(tidytext)
 library(igraph)
@@ -31,6 +43,8 @@ library(ggraph)
 library(corpus)
 library(janitor)
 library(knitr)
+library(rgdal)
+library(sf)
 #set colors 
 colors_hex = c("dodgerblue4","green3","red4","orange2","purple4","grey") 
 
@@ -46,15 +60,34 @@ dat = dat %>% filter(yrmo %in% 201903:202002 & CATEGORY != "Data Not Available")
 
 #load socio-demo data
 sec = read.xlsx("data/SocioEconomic.xlsx")
+
+#load shp file
+shp <- readOGR(dsn = "data/Kansas City Neighborhood Boundaries/geo_export_81808d3e-44c5-48c1-9a8e-76fec558c110.shp", stringsAsFactors = F)
+# convert to sf
+shp_sf = st_as_sf(shp)
 ```
 
 ### Data
 
 #### About 311 data
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
+#add 311 volume to geo data
+vol311 = dat %>% group_by(nbhid = NBH_ID) %>% summarise(vol311=n())
+
+#map 311 vol by nbh
+shp_sf %>% 
+  left_join(vol311, by = "nbhid") %>%
+  ggplot() +
+  geom_sf(aes(fill = vol311 ), color = "black")+
+  labs(fill = "Total 311 Calls Volume")+
+  theme_void()
+```
+
  
 ```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
 
-#summarise 311 volume on NBH level
+#summarize 311 volume on NBH level
 dat %>%group_by(CATEGORY, NEIGH) %>% 
   summarise(n = n()) %>% 
   ungroup() %>%
@@ -95,6 +128,10 @@ data.frame(t(sec %>% select(-c(NBH_ID,NBH_NAME, Income.Level)))) %>%
 ### Classification based on 311 service categories
 
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
 
+
+
+```
 
 

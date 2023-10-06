@@ -1,15 +1,36 @@
 Characterizing Neighborhood Using 311 Calls: A Case Study of Kansas City
 ================
 
-**Abstract**
+<center>
 
-TBD
+Thao Tran
 
-**Figures**
+October 2023
+
+</center>
+<!-- **Abstracts** -->
+<!-- TBD  -->
+
+### Intro
+
+From Evicted - Mathew Desmond, we learned that in Milwaukee at the time
+multiple nuisance activities 911 calls on a property can lead to police
+service charges to property owners. This might lead to landlord eviction
+renters. Nuisance activities are especially concentrated in low income,
+deep poverty neighborhoods. These calls are reported under “Trouble with
+Subjects”, noise complaints, and domestic violence.
+
+Connecting this to the above literature of using 311 calls as indicators
+of neighborhood distress and characteristics of urban neighborhoods. In
+another way, 311 calls can be used as a real time indicator of
+neighborhood characteristics in addition to much lagged
+socio-demographic estimates.
 
 ### Data
 
 #### About 311 data
+
+![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
 | CATEGORY                            | Neighborhood_Count | Min | Mean | Median |  SD |   Max |  Total |
 |:------------------------------------|-------------------:|----:|-----:|-------:|----:|------:|-------:|
