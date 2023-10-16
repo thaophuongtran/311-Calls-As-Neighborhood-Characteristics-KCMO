@@ -11,26 +11,85 @@ October 2023
 <!-- **Abstracts** -->
 <!-- TBD  -->
 
-### Intro
+### Introduction
 
-From Evicted - Mathew Desmond, we learned that in Milwaukee at the time
-multiple nuisance activities 911 calls on a property can lead to police
-service charges to property owners. This might lead to landlord eviction
-renters. Nuisance activities are especially concentrated in low income,
-deep poverty neighborhoods. These calls are reported under “Trouble with
-Subjects”, noise complaints, and domestic violence.
+Urban environments are characterized by a complex tapestry of diverse
+neighborhoods, each exhibiting unique socio-economic, cultural, and
+infrastructural features. Effective urban planning and decision-making
+demand an intricate understanding of these localized contexts.
+Traditional demographic estimates, though invaluable, often suffer from
+temporal lags that limit their real-time applicability. In response to
+this challenge, emerging research suggests that 311 non-emergency
+service calls offer an innovative avenue for constructing a dynamic and
+cost-effective indicators of urban neighborhoods. These service
+requests, encompassing a wide array of concerns raised by residents,
+possess the potential to serve as invaluable indicators of neighborhood
+distress and characteristics. By scrutinizing this wealth of data, urban
+stakeholders can gain unprecedented insights into local conditions,
+aiding in the formulation of targeted interventions and policies.
 
-Connecting this to the above literature of using 311 calls as indicators
-of neighborhood distress and characteristics of urban neighborhoods. In
-another way, 311 calls can be used as a real time indicator of
-neighborhood characteristics in addition to much lagged
-socio-demographic estimates.
+The utilization of 311 Service Requests as a tool for characterizing
+urban neighborhoods represents a burgeoning area of inquiry in urban
+studies and planning. Notably, seminal work by [Wang et al
+(2017)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5645100/)
+highlights the capacity of 311 data to unveil the intricate fabric of
+urban systems. Through detailed analysis of New York City, Boston, and
+Chicago, the study demonstrates how these requests, categorized by type
+and location, furnish a robust foundation for delineating distinct
+socio-economic profiles across neighborhoods. This innovative
+classification, hinged on 311 data, presents an invaluable resource for
+modeling various socio-economic features, offering a real-time
+counterpart to conventional, lagged estimates.
+
+Furthermore, the implications of this research extend beyond theoretical
+classifications. The findings underscore the practical utility of
+311-based characterizations in forecasting future trends, particularly
+in the realm of local real estate prices. This revelation suggests that
+311 Service Requests harbor the potential not only to monitor but also
+to predict the socio-economic performance of urban neighborhoods. Such
+predictive capabilities empower urban stakeholders with the means to
+quantitatively evaluate the impacts of their interventions, fostering a
+more dynamic and responsive approach to urban planning.
+
+In light of these compelling insights, this paper builds upon this
+foundational work, delving deeper into the potential of 311 data as a
+dynamic lens through which to understand and address the challenges of
+urban environments. Through rigorous analysis and modeling, we seek to
+augment the understanding of how 311 Service Requests in Kansas City
+Missouri (KCMO) can serve as an invaluable real-time indicator of
+neighborhood characteristics, complementing conventional demographic
+estimates and enabling more informed, timely, and effective urban
+interventions.
 
 ### Data
 
 #### About 311 data
 
+The data utilized in this study originates from the Kansas City Open
+Data website, spanning from March 1st, 2019 to February 1st, 2020. This
+temporal scope allows for an examination of non-emergency service
+requests across four counties within the Kansas City, Missouri area,
+namely Jackson, Clay, Platte, and Cass. This pre-pandemic timeframe
+offers a valuable baseline for understanding the dynamics of urban
+service requests prior to the influence of extraordinary events such as
+the COVID-19 pandemic. The 311 system serves as a conduit through which
+local government entities provide non-emergency assistance to residents,
+visitors, and businesses. It addresses reported disruptions in services,
+unsafe situations, and disturbances affecting quality of life. Although
+requests are received through various channels such as text messages,
+web forms, and dedicated mobile applications, the majority are received
+via phone calls. These 311 service requests and complaints encompass a
+wide spectrum of concerns, including, but not limited to, noise
+disturbances, building heating outages, and sightings of rodents.
+Consequently, this data proves to be an invaluable resource for
+comprehending the provision of crucial municipal services and gauging
+neighborhood conditions.
+
 ![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+The number of total requests during the time frame for the 311 data in
+KCMO is at 117 thousands, about a fifth of the city’s population during
+the same year. Kansas City’s 311 data are categorized in 15 types.
 
 | CATEGORY                            | Neighborhood_Count | Min | Mean | Median |  SD |   Max |  Total |
 |:------------------------------------|-------------------:|----:|-----:|-------:|----:|------:|-------:|
@@ -50,6 +109,9 @@ socio-demographic estimates.
 | Streets / Roadways / Alleys         |                240 |   5 |  112 |     80 | 122 | 1,036 | 26,798 |
 | Trash / Recycling                   |                239 |   1 |  144 |     93 | 237 | 3,355 | 34,344 |
 
+Table 1: Summary statitics of 311 Calls by 311 Non-Emergency Service
+Categories
+
 #### About demographic and socioeconomic data
 
 | Socioeconomic_Demographic             | Neighborhood_Count |       Min |       Mean |     Median |         SD |          Max |
@@ -64,6 +126,9 @@ socio-demographic estimates.
 | Share.Renter.Occupied                 |                240 |      0.00 |      45.53 |      47.04 |      24.07 |       100.00 |
 | Share.Vacant                          |                240 |      0.00 |      15.68 |      11.69 |      13.57 |        64.72 |
 | Share.White.alone                     |                240 |      0.84 |      41.38 |      42.56 |      24.00 |        99.31 |
+
+Table 2: Summary statistics of socio-demographic characteristics across
+neighborhoods in Kansas City, MO
 
 ### Classification based on 311 service categories
 
@@ -333,6 +398,8 @@ socio-demographic estimates.
 | Davidson                                   |       5 |                 37 |
 | Coves North                                |       5 |                 37 |
 | KCI & 2nd Creek                            |       5 |                 37 |
+
+Table 3: K-Means classication of neighborhoods based on 311 call volumes
 
 ![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
