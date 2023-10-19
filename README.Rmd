@@ -111,7 +111,7 @@ shp_sf %>%
   theme_void()
 ```
 
-The number of total requests during the time frame for the 311 data in KCMO is at 117 thousands, about a fifth of the city's population during the same year. Kansas City's 311 data are categorized in 15 types.
+The number of total requests during the time frame for the 311 data in KCMO is at 117 thousands, about a fifth of the city's population during the same year. Kansas City's 311 data are categorized in 15 types which are listed below.
  
 ```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
 
@@ -133,8 +133,11 @@ dat %>%group_by(CATEGORY, NEIGH) %>%
 
 ```
 
+The 311 data contains one record for each call including information such as: type of request, time of request, open/close status of request, and location of request. We aggregate 311 calls and group by type and neighborhood. 
 
 #### About demographic and socioeconomic data
+
+As we attempt to use 311 data to characterize urban neighborhood in complement to existing socio-demographic indicators. For socioeconomic and demographic features, we use data data from U.S. Census 2019 American Community Survey (ACS).
  
 ```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
 
@@ -157,39 +160,50 @@ data.frame(t(sec %>% select(-c(NBH_ID)))) %>%
 
 ### Classification based on 311 service categories
 
+We define a 311 service composition for a neighborhood using the relative frequencies of 311 calls across different request types. These compositions allow us to gain initial insight to the usage and needs of 311 services across different communities. This approach characterizes the unique residents' needs for 311 service in a given neighborhood, highlighting particular concerns that are most important to the local community. 
+
+For a neighborhood $i$, its composition is represented with $C(i) = (\frac{N_{i,t}}{N_i}, t=1...T)$, where $N_{i,t}$ is the total number of request in category $t$ in neighborhood $i$, $N_i$ is the total number of 311 request in neighborhood $i$ which can be also be written as $N_i = \sum_t N_{i,t}$, and $T$ is total number of service categories.
+
+The 311 services composition $C_i$ describes unique characteristics of neighborhood $i$ and there are likely groups of neighborhoods that share similar composition like how areas share similar socioeconomic characteristics. We apply k-mean clustering to multi-dimensional composition $C_i$ to classify neighborhoods with similar 311 service characteristics into distinct clusters. We get an optimal clustering we run the algorithm 100 times using cumulative square sum of distances from centroids.  
+
+The key step in k-mean clustering is to identify an appropriate number of clusters. We evaluate the clustering model with Hartigan–Wong method as shown below. Given the socioeconomic diversity across neighborhoods in the selected cities, we determine that a minimum of three clusters is an appropriate value.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
 # prepare data for clustering
-vol311_nbh = dat %>% group_by(NBH_ID, NEIGH,CATEGORY) %>%
-  summarise(n=n()) %>%
+vol311_nbh = dat %>% 
+  group_by(NBH_ID,NEIGH) %>%
+  mutate(N = n()) %>%
+  group_by(NBH_ID, NEIGH,CATEGORY) %>%
+  summarise(n=n(), N= max(N),c_it = n/N) %>% 
+  select(-c(n,N))%>%
   dcast(NBH_ID+NEIGH~CATEGORY)%>% 
   replace(is.na(.), 0)
 
 #choose number of clusters
-kBest = FitKMeans(scale(vol311_nbh[,-c(1:2)]), max.clusters=20, nstart=25, seed=20231005)
+kBest = FitKMeans((vol311_nbh[,-c(1:2)]), max.clusters=20, nstart=25, seed=20231005)
 kBest %>% kable()
 PlotHartigan(kBest) + theme_bw() +
   labs(title = "Figure 2: Hartigan's Rule to determine k")
+```
+
+In the following figure, we show how the neighborhood are divided into seven clusters base on the 311 service composition. 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.height=8,fig.width=8, dpi=300}
+#k
+k = 7
 
 #k means cluster
 set.seed(20231005)
-K3N25 = kmeans(scale(vol311_nbh[,-c(1:2)]), centers=5, nstart=25) # see the
-```
+K3N25 = kmeans((vol311_nbh[,-c(1:2)]), centers=k, nstart=25) # see the
 
-
-
-
-```{r, echo=FALSE, warning=FALSE,message=FALSE,fig.height=8,fig.width=8, dpi=300}
 #add cluster to nbh ID 
 K3N25_label = data.frame(nbhid = vol311_nbh$NBH_ID, Neighborhood = vol311_nbh$NEIGH,Cluster = K3N25$cluster)
 
 #list NBH names by cluster
-K3N25_label %>% 
-  select(Neighborhood, Cluster) %>% 
-  group_by(Cluster) %>% 
-  mutate(Neighborhood_Count = n())%>% 
-  arrange(Cluster) %>% 
-  kable(caption = "Table 3: K-Means classication of neighborhoods based on 311 call volumes")
+for (i in 1:k){
+  cat("- Cluster", i, "includes:", paste(K3N25_label$Neighborhood[K3N25_label$Cluster==i],","),"\n\n")
+}
+
 
 #visualize cluster on the map
 shp_sf %>% 
@@ -202,6 +216,7 @@ shp_sf %>%
 
 ```
 
+To gauge the difference in 311 service request characteristics among clusters, we illustrate the distribution of top service requests categories across the seven clusters. This reveals a distinct variation in the composition.
 
 ```{r, echo=FALSE, warning=FALSE,message=FALSE,fig.height=8,fig.width=8, dpi=300}
 # plot share of top categories for each cluster
@@ -229,6 +244,10 @@ dat %>%
 
 
 ### Socioeconomic features among clusters
+
+Given our understanding of the specific spatial contexts within the analyzed cities, the emerging clusters align with intuitive expectations. However, to quantitatively address how the local 311 service request patterns resembles the socioeconomic attributes of those areas, we now compile and scrutinize the socioeconomic characteristics associated with each of the identified clusters.
+
+It's important to note that, up to this point, the clustering outcomes have been derived solely from the frequency of 311 service requests, without incorporating any socioeconomic data. In the following step, we aggregate information regarding socioeconomic indicators such as income levels, educational attainment, as well as racial composition. We then compare the ranking (ascending) of average levels of each indicator within each of the designated clusters.
 
 ```{r, echo=FALSE, warning=FALSE,message=FALSE,fig.height=8,fig.width=8, dpi=300}
 

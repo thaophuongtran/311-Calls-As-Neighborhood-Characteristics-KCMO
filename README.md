@@ -89,7 +89,8 @@ neighborhood conditions.
 
 The number of total requests during the time frame for the 311 data in
 KCMO is at 117 thousands, about a fifth of the city’s population during
-the same year. Kansas City’s 311 data are categorized in 15 types.
+the same year. Kansas City’s 311 data are categorized in 15 types which
+are listed below.
 
 | CATEGORY                            | Neighborhood_Count | Min | Mean | Median |  SD |   Max |  Total |
 |:------------------------------------|-------------------:|----:|-----:|-------:|----:|------:|-------:|
@@ -112,7 +113,17 @@ the same year. Kansas City’s 311 data are categorized in 15 types.
 Table 1: Summary statitics of 311 Calls by 311 Non-Emergency Service
 Categories
 
+The 311 data contains one record for each call including information
+such as: type of request, time of request, open/close status of request,
+and location of request. We aggregate 311 calls and group by type and
+neighborhood.
+
 #### About demographic and socioeconomic data
+
+As we attempt to use 311 data to characterize urban neighborhood in
+complement to existing socio-demographic indicators. For socioeconomic
+and demographic features, we use data data from U.S. Census 2019
+American Community Survey (ACS).
 
 | Socioeconomic_Demographic             | Neighborhood_Count |       Min |       Mean |     Median |         SD |          Max |
 |:--------------------------------------|-------------------:|----------:|-----------:|-----------:|-----------:|-------------:|
@@ -132,279 +143,101 @@ neighborhoods in Kansas City, MO
 
 ### Classification based on 311 service categories
 
-| Clusters |  Hartigan | AddCluster |
-|---------:|----------:|:-----------|
-|        2 | 74.494711 | TRUE       |
-|        3 | 66.612205 | TRUE       |
-|        4 | 36.756455 | TRUE       |
-|        5 | 25.163992 | TRUE       |
-|        6 | 25.544523 | TRUE       |
-|        7 | 26.048695 | TRUE       |
-|        8 | 18.600090 | TRUE       |
-|        9 | 20.717732 | TRUE       |
-|       10 | 18.607223 | TRUE       |
-|       11 | 12.582173 | TRUE       |
-|       12 | 11.772134 | TRUE       |
-|       13 | 11.531513 | TRUE       |
-|       14 | 10.798111 | TRUE       |
-|       15 |  8.273269 | FALSE      |
-|       16 |  7.981346 | FALSE      |
-|       17 |  8.828804 | FALSE      |
-|       18 |  7.508005 | FALSE      |
-|       19 |  9.446460 | FALSE      |
-|       20 |  7.645774 | FALSE      |
+We define a 311 service composition for a neighborhood using the
+relative frequencies of 311 calls across different request types. These
+compositions allow us to gain initial insight to the usage and needs of
+311 services across different communities. This approach characterizes
+the unique residents’ needs for 311 service in a given neighborhood,
+highlighting particular concerns that are most important to the local
+community.
+
+For a neighborhood $i$, its composition is represented with
+$C(i) = (\frac{N_{i,t}}{N_i}, t=1...T)$, where $N_{i,t}$ is the total
+number of request in category $t$ in neighborhood $i$, $N_i$ is the
+total number of 311 request in neighborhood $i$ which can be also be
+written as $N_i = \sum_t N_{i,t}$, and $T$ is total number of service
+categories.
+
+The 311 services composition $C_i$ describes unique characteristics of
+neighborhood $i$ and there are likely groups of neighborhoods that share
+similar composition like how areas share similar socioeconomic
+characteristics. We apply k-mean clustering to multi-dimensional
+composition $C_i$ to classify neighborhoods with similar 311 service
+characteristics into distinct clusters. We get an optimal clustering we
+run the algorithm 100 times using cumulative square sum of distances
+from centroids.
+
+The key step in k-mean clustering is to identify an appropriate number
+of clusters. We evaluate the clustering model with Hartigan–Wong method
+as shown below. Given the socioeconomic diversity across neighborhoods
+in the selected cities, we determine that a minimum of three clusters is
+an appropriate value.
+
+| Clusters |   Hartigan | AddCluster |
+|---------:|-----------:|:-----------|
+|        2 | 154.038765 | TRUE       |
+|        3 |  53.208288 | TRUE       |
+|        4 |  42.684546 | TRUE       |
+|        5 |  36.385655 | TRUE       |
+|        6 |  29.294647 | TRUE       |
+|        7 |  18.186312 | TRUE       |
+|        8 |  17.410499 | TRUE       |
+|        9 |  15.870979 | TRUE       |
+|       10 |  16.239130 | TRUE       |
+|       11 |  11.989314 | TRUE       |
+|       12 |  10.394229 | TRUE       |
+|       13 |   9.620304 | FALSE      |
+|       14 |   7.813568 | FALSE      |
+|       15 |   7.436994 | FALSE      |
+|       16 |   9.065580 | FALSE      |
+|       17 |   6.836910 | FALSE      |
+|       18 |   6.072479 | FALSE      |
+|       19 |   5.951516 | FALSE      |
+|       20 |   4.648143 | FALSE      |
 
 ![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-| Neighborhood                               | Cluster | Neighborhood_Count |
-|:-------------------------------------------|--------:|-------------------:|
-| River Market                               |       1 |                 25 |
-| Quality Hill                               |       1 |                 25 |
-| Hospital Hill                              |       1 |                 25 |
-| Crossroads                                 |       1 |                 25 |
-| Westside North                             |       1 |                 25 |
-| Westside South                             |       1 |                 25 |
-| Crown Center                               |       1 |                 25 |
-| Pendleton Heights                          |       1 |                 25 |
-| Independence Plaza                         |       1 |                 25 |
-| Sheffield                                  |       1 |                 25 |
-| North Blue Ridge                           |       1 |                 25 |
-| Wendell Phillips                           |       1 |                 25 |
-| South Blue Valley                          |       1 |                 25 |
-| Ivanhoe Southeast                          |       1 |                 25 |
-| Key Coalition                              |       1 |                 25 |
-| South Hyde Park                            |       1 |                 25 |
-| Southmoreland                              |       1 |                 25 |
-| Mission Lake                               |       1 |                 25 |
-| Antioch Acres                              |       1 |                 25 |
-| Chaumiere                                  |       1 |                 25 |
-| Winnwood                                   |       1 |                 25 |
-| Glenhaven                                  |       1 |                 25 |
-| Ravenwood-Somerset                         |       1 |                 25 |
-| Maple Park West                            |       1 |                 25 |
-| Maple Park                                 |       1 |                 25 |
-| Columbus Park Industrial                   |       2 |                176 |
-| Paseo West                                 |       2 |                176 |
-| Union Hill                                 |       2 |                176 |
-| Longfellow                                 |       2 |                176 |
-| Northeast Industrial District              |       2 |                176 |
-| Columbus Park                              |       2 |                176 |
-| Parkview                                   |       2 |                176 |
-| Forgotten Homes                            |       2 |                176 |
-| Beacon Hills                               |       2 |                176 |
-| 18th And Vine And Downtown East            |       2 |                176 |
-| Central Blue Valley And Park Tower Gardens |       2 |                176 |
-| West Blue Valley                           |       2 |                176 |
-| East Blue Valley                           |       2 |                176 |
-| Blue Valley Industrial                     |       2 |                176 |
-| Western Blue Township                      |       2 |                176 |
-| Cunningham Ridge                           |       2 |                176 |
-| Ashland Ridge                              |       2 |                176 |
-| Riss Lake                                  |       2 |                176 |
-| Sterling Acres                             |       2 |                176 |
-| Sterling Gardens                           |       2 |                176 |
-| Stayton Meadows                            |       2 |                176 |
-| Coachlight Square                          |       2 |                176 |
-| Lewis Heights                              |       2 |                176 |
-| Leeds                                      |       2 |                176 |
-| Eastwood Hills West                        |       2 |                176 |
-| Vineyard Northwest                         |       2 |                176 |
-| Vineyard Estates                           |       2 |                176 |
-| Mount Hope                                 |       2 |                176 |
-| Linwood Homeowners-Ivanhoe                 |       2 |                176 |
-| Ivanhoe Southwest                          |       2 |                176 |
-| Ivanhoe Northeast                          |       2 |                176 |
-| Palestine West And Oak Park Northeast      |       2 |                176 |
-| Palestine East                             |       2 |                176 |
-| Ingleside                                  |       2 |                176 |
-| Boulevard Village                          |       2 |                176 |
-| Dunbar                                     |       2 |                176 |
-| Center City                                |       2 |                176 |
-| Squier Park                                |       2 |                176 |
-| Manheim Park                               |       2 |                176 |
-| Coleman Highlands                          |       2 |                176 |
-| Roanoke                                    |       2 |                176 |
-| Valentine                                  |       2 |                176 |
-| Hanover Place                              |       2 |                176 |
-| Broadway Gillham                           |       2 |                176 |
-| North Hyde Park                            |       2 |                176 |
-| Central Hyde Park                          |       2 |                176 |
-| Rockhill                                   |       2 |                176 |
-| Old Westport                               |       2 |                176 |
-| Plaza Westport                             |       2 |                176 |
-| Westwood                                   |       2 |                176 |
-| Country Club Plaza                         |       2 |                176 |
-| Park Central-Research Park                 |       2 |                176 |
-| Sunset Hill West                           |       2 |                176 |
-| Sunset Hill                                |       2 |                176 |
-| Ward Estates                               |       2 |                176 |
-| Countryside                                |       2 |                176 |
-| South Plaza                                |       2 |                176 |
-| Crestwood                                  |       2 |                176 |
-| Brookside Park                             |       2 |                176 |
-| Morningside                                |       2 |                176 |
-| Wornall Homestead                          |       2 |                176 |
-| Country Club                               |       2 |                176 |
-| Greenway Fields                            |       2 |                176 |
-| Country Club District                      |       2 |                176 |
-| Stratford Gardens                          |       2 |                176 |
-| Romanelli West                             |       2 |                176 |
-| Armour Fields                              |       2 |                176 |
-| Armour Hills                               |       2 |                176 |
-| Oak Meyer Gardens                          |       2 |                176 |
-| Holmes Park                                |       2 |                176 |
-| Ward Parkway Plaza                         |       2 |                176 |
-| West Waldo                                 |       2 |                176 |
-| Rolling Meadows                            |       2 |                176 |
-| Rockhill Manor                             |       2 |                176 |
-| Mount Cleveland                            |       2 |                176 |
-| Sheraton Estates                           |       2 |                176 |
-| South Town Fork Creek                      |       2 |                176 |
-| Citadel                                    |       2 |                176 |
-| Neighbors United For Action                |       2 |                176 |
-| Blenheim Square Research Hospital          |       2 |                176 |
-| Swope Park Campus                          |       2 |                176 |
-| Self Help Neighborhood Council             |       2 |                176 |
-| Foxtown East                               |       2 |                176 |
-| Marlborough East                           |       2 |                176 |
-| Brown Estates                              |       2 |                176 |
-| Swope Park Ridge-Winchester                |       2 |                176 |
-| Strupwood                                  |       2 |                176 |
-| East Swope Highlands                       |       2 |                176 |
-| Oldham Farms                               |       2 |                176 |
-| Hillcrest                                  |       2 |                176 |
-| Santa Fe Hills                             |       2 |                176 |
-| Boone Hills                                |       2 |                176 |
-| Legacy East                                |       2 |                176 |
-| Linden Hills And Indian Heights            |       2 |                176 |
-| Willow Creek                               |       2 |                176 |
-| Lea Manor                                  |       2 |                176 |
-| Country Lane Estates                       |       2 |                176 |
-| Bridlespur                                 |       2 |                176 |
-| Red Bridge North                           |       2 |                176 |
-| Red Bridge South                           |       2 |                176 |
-| Foxcroft And Glen Arbor                    |       2 |                176 |
-| Verona Hills                               |       2 |                176 |
-| Blue Hills Estates                         |       2 |                176 |
-| Woodbridge                                 |       2 |                176 |
-| Hidden Valley                              |       2 |                176 |
-| Sechrest                                   |       2 |                176 |
-| Oakwood                                    |       2 |                176 |
-| St Catherines Gardens                      |       2 |                176 |
-| Royal Oaks                                 |       2 |                176 |
-| Terrace Lake Gardens                       |       2 |                176 |
-| Calico Farms                               |       2 |                176 |
-| Loma Vista                                 |       2 |                176 |
-| Stratford Estates                          |       2 |                176 |
-| Hickman Mills                              |       2 |                176 |
-| White Oak                                  |       2 |                176 |
-| Robandee South                             |       2 |                176 |
-| Bannister Acres                            |       2 |                176 |
-| Hickman Mills South                        |       2 |                176 |
-| Ruskin Hills                               |       2 |                176 |
-| Crossgates                                 |       2 |                176 |
-| Kirkside                                   |       2 |                176 |
-| Longview                                   |       2 |                176 |
-| Highview Estates                           |       2 |                176 |
-| Unity Ridge                                |       2 |                176 |
-| Country Valley-Hawthorn Square             |       2 |                176 |
-| Blue Vue Hills                             |       2 |                176 |
-| Glen Lake                                  |       2 |                176 |
-| Fairway Hills                              |       2 |                176 |
-| Woodson Estates                            |       2 |                176 |
-| Timber Valley                              |       2 |                176 |
-| Martin City                                |       2 |                176 |
-| Blue Ridge Farms                           |       2 |                176 |
-| Richards Gebaur                            |       2 |                176 |
-| Harlem                                     |       2 |                176 |
-| Briarcliff West                            |       2 |                176 |
-| Briarcliff And Claymont                    |       2 |                176 |
-| River View                                 |       2 |                176 |
-| Crestview                                  |       2 |                176 |
-| Colonial Square                            |       2 |                176 |
-| River Forest                               |       2 |                176 |
-| Cooley Highlands S                         |       2 |                176 |
-| Chouteau Estates                           |       2 |                176 |
-| Holiday Hills                              |       2 |                176 |
-| Sherwood Estates                           |       2 |                176 |
-| Country Club Estates And Big Shoal         |       2 |                176 |
-| Foxwoods-Carriage Hills                    |       2 |                176 |
-| Winnwood Gardens                           |       2 |                176 |
-| Hill Haven                                 |       2 |                176 |
-| Winnetonka                                 |       2 |                176 |
-| Gracemor-Randolph Corners                  |       2 |                176 |
-| Minneville                                 |       2 |                176 |
-| Birmingham Bottoms                         |       2 |                176 |
-| Clayton                                    |       2 |                176 |
-| Lakeview Terrace                           |       2 |                176 |
-| Tanglewood And Regency North               |       2 |                176 |
-| Prairie Point-Wildberry                    |       2 |                176 |
-| Barry Harbour                              |       2 |                176 |
-| Platte Brook North                         |       2 |                176 |
-| The Coves                                  |       2 |                176 |
-| Platte Ridge                               |       2 |                176 |
-| Park Forest                                |       2 |                176 |
-| Royal Oaks North                           |       2 |                176 |
-| Linden Park                                |       2 |                176 |
-| Hawthorne And Picture Hills                |       2 |                176 |
-| Parkdale And Walden                        |       2 |                176 |
-| Breen Hills                                |       2 |                176 |
-| Park Plaza                                 |       2 |                176 |
-| Line Creek And Northern Heights            |       2 |                176 |
-| Outer Gashland-Nashua                      |       2 |                176 |
-| Nashua                                     |       2 |                176 |
-| Meadowbrook Heights                        |       2 |                176 |
-| New Mark                                   |       2 |                176 |
-| Gashland                                   |       2 |                176 |
-| Sherrydale                                 |       2 |                176 |
-| Jefferson Highlands                        |       2 |                176 |
-| Ridgefield                                 |       2 |                176 |
-| CBD Downtown                               |       3 |                  1 |
-| Shoal Creek                                |       4 |                  1 |
-| Lykins                                     |       5 |                 37 |
-| Scarritt Point                             |       5 |                 37 |
-| North Indian Mound                         |       5 |                 37 |
-| South Indian Mound                         |       5 |                 37 |
-| Washington Wheatley                        |       5 |                 37 |
-| East Community Team North                  |       5 |                 37 |
-| East Community Team South                  |       5 |                 37 |
-| Eastwood Hills East                        |       5 |                 37 |
-| Vineyard                                   |       5 |                 37 |
-| Santa Fe                                   |       5 |                 37 |
-| Oak Park Northwest                         |       5 |                 37 |
-| Oak Park Southwest                         |       5 |                 37 |
-| Oak Park Southeast                         |       5 |                 37 |
-| Knoches Park                               |       5 |                 37 |
-| Volker                                     |       5 |                 37 |
-| West Plaza                                 |       5 |                 37 |
-| Western 49-63                              |       5 |                 37 |
-| Tower Homes                                |       5 |                 37 |
-| Ward Parkway                               |       5 |                 37 |
-| Waldo Homes                                |       5 |                 37 |
-| Eastern 49-63                              |       5 |                 37 |
-| Swope Parkway-Elmwood                      |       5 |                 37 |
-| North Town Fork Creek                      |       5 |                 37 |
-| Blue Hills                                 |       5 |                 37 |
-| Noble And Gregory Ridge                    |       5 |                 37 |
-| East Meyer 7                               |       5 |                 37 |
-| East Meyer 6                               |       5 |                 37 |
-| Marlborough Heights/Marlborough Pride      |       5 |                 37 |
-| Park Farms                                 |       5 |                 37 |
-| Western Hills                              |       5 |                 37 |
-| Fairlane                                   |       5 |                 37 |
-| Fairwood And Robandee                      |       5 |                 37 |
-| Ruskin Heights                             |       5 |                 37 |
-| Little Blue                                |       5 |                 37 |
-| Davidson                                   |       5 |                 37 |
-| Coves North                                |       5 |                 37 |
-| KCI & 2nd Creek                            |       5 |                 37 |
+In the following figure, we show how the neighborhood are divided into
+seven clusters base on the 311 service composition.
 
-Table 3: K-Means classication of neighborhoods based on 311 call volumes
+    ## - Cluster 1 includes: Columbus Park Industrial , River Market , Quality Hill , CBD Downtown , Paseo West , Hospital Hill , Crossroads , Crown Center , Parkview , 18th And Vine And Downtown East , Broadway Gillham , Old Westport , Crestwood , Sechrest , Harlem , 
+    ## 
+    ## - Cluster 2 includes: Columbus Park , Forgotten Homes , Sterling Gardens , Stayton Meadows , Eastwood Hills East , Lewis Heights , Palestine East , Dunbar , Central Hyde Park , Armour Hills , Swope Parkway-Elmwood , Neighbors United For Action , Blenheim Square Research Hospital , Brown Estates , Kirkside , Country Valley-Hawthorn Square , Woodson Estates , Timber Valley , Briarcliff And Claymont , Davidson , Colonial Square , Chouteau Estates , Country Club Estates And Big Shoal , Clayton , Lakeview Terrace , Tanglewood And Regency North , Prairie Point-Wildberry , Platte Brook North , The Coves , Parkdale And Walden , Breen Hills , Park Plaza , Line Creek And Northern Heights , Outer Gashland-Nashua , Nashua , New Mark , Gashland , Ridgefield , Shoal Creek , 
+    ## 
+    ## - Cluster 3 includes: Westside South , Beacon Hills , Blue Valley Industrial , Leeds , Eastwood Hills West , Center City , Volker , Coleman Highlands , Valentine , Hanover Place , Southmoreland , West Waldo , Waldo Homes , Sheraton Estates , South Town Fork Creek , Citadel , Swope Park Campus , Noble And Gregory Ridge , East Meyer 7 , East Meyer 6 , Marlborough Heights/Marlborough Pride , Swope Park Ridge-Winchester , East Swope Highlands , Park Farms , Hillcrest , Linden Hills And Indian Heights , Willow Creek , Verona Hills , Mission Lake , St Catherines Gardens , Loma Vista , Fairlane , Stratford Estates , White Oak , Robandee South , Bannister Acres , Hickman Mills South , Crossgates , Blue Vue Hills , Fairway Hills , Blue Ridge Farms , Holiday Hills , Coves North , Barry Harbour , Platte Ridge , Park Forest , Linden Park , KCI & 2nd Creek , Meadowbrook Heights , Jefferson Highlands , 
+    ## 
+    ## - Cluster 4 includes: Union Hill , Boulevard Village , Roanoke , Country Club Plaza , Park Central-Research Park , Sunset Hill West , Sunset Hill , Ward Estates , South Plaza , Country Club District , Romanelli West , Armour Fields , Holmes Park , Ward Parkway , Ward Parkway Plaza , Legacy East , Country Lane Estates , Red Bridge North , Woodbridge , Calico Farms , Longview , Highview Estates , Glen Lake , Martin City , Briarcliff West , 
+    ## 
+    ## - Cluster 5 includes: North Blue Ridge , Oak Park Southwest , South Hyde Park , Chaumiere , Cooley Highlands S , Glenhaven , Ravenwood-Somerset , Maple Park West , Winnwood Gardens , Maple Park , 
+    ## 
+    ## - Cluster 6 includes: Longfellow , Northeast Industrial District , Sterling Acres , Coachlight Square , Rockhill , Plaza Westport , West Plaza , Westwood , Countryside , Western 49-63 , Brookside Park , Morningside , Wornall Homestead , Country Club , Greenway Fields , Stratford Gardens , Oak Meyer Gardens , Tower Homes , Rolling Meadows , Rockhill Manor , Eastern 49-63 , Mount Cleveland , Marlborough East , Strupwood , Western Hills , Santa Fe Hills , Boone Hills , Lea Manor , Bridlespur , Red Bridge South , Foxcroft And Glen Arbor , Blue Hills Estates , Oakwood , Royal Oaks , Terrace Lake Gardens , Hickman Mills , Unity Ridge , Little Blue , Richards Gebaur , Sherwood Estates , Birmingham Bottoms , Hawthorne And Picture Hills , Sherrydale , 
+    ## 
+    ## - Cluster 7 includes: Westside North , Pendleton Heights , Independence Plaza , Lykins , Scarritt Point , North Indian Mound , South Indian Mound , Sheffield , Wendell Phillips , Washington Wheatley , East Community Team North , East Community Team South , South Blue Valley , Central Blue Valley And Park Tower Gardens , West Blue Valley , East Blue Valley , Western Blue Township , Cunningham Ridge , Ashland Ridge , Riss Lake , Vineyard Northwest , Vineyard , Vineyard Estates , Mount Hope , Linwood Homeowners-Ivanhoe , Ivanhoe Southwest , Ivanhoe Southeast , Ivanhoe Northeast , Key Coalition , Santa Fe , Oak Park Northwest , Oak Park Southeast , Palestine West And Oak Park Northeast , Ingleside , Knoches Park , Squier Park , Manheim Park , North Hyde Park , North Town Fork Creek , Blue Hills , Self Help Neighborhood Council , Foxtown East , Oldham Farms , Hidden Valley , Fairwood And Robandee , Ruskin Hills , Ruskin Heights , River View , Crestview , Antioch Acres , River Forest , Winnwood , Foxwoods-Carriage Hills , Hill Haven , Winnetonka , Gracemor-Randolph Corners , Minneville , Royal Oaks North ,
 
 ![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+To gauge the difference in 311 service request characteristics among
+clusters, we illustrate the distribution of top service requests
+categories across the seven clusters. This reveals a distinct variation
+in the composition.
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ### Socioeconomic features among clusters
+
+Given our understanding of the specific spatial contexts within the
+analyzed cities, the emerging clusters align with intuitive
+expectations. However, to quantitatively address how the local 311
+service request patterns resembles the socioeconomic attributes of those
+areas, we now compile and scrutinize the socioeconomic characteristics
+associated with each of the identified clusters.
+
+It’s important to note that, up to this point, the clustering outcomes
+have been derived solely from the frequency of 311 service requests,
+without incorporating any socioeconomic data. In the following step, we
+aggregate information regarding socioeconomic indicators such as income
+levels, educational attainment, as well as racial composition. We then
+compare the ranking (ascending) of average levels of each indicator
+within each of the designated clusters.
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
